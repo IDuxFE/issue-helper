@@ -1,13 +1,15 @@
 node_modules
-.DS_Store
+coverage
+junit.xml
+temp
 dist
-dist-ssr
-*.local
 
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+.vscode
+.idea
 
-components.d.ts
+.DS_Store
+*.log
+
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

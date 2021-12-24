@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
-import App from './App.vue'
-import { router } from './plugins/router'
-import { idux } from './plugins/idux'
+import './style.css'
+import idux from './idux'
 
-createApp(App).use(router).use(idux).mount('#app')
+import App from './App.vue'
+
+createApp(App).use(idux).mount('#app')

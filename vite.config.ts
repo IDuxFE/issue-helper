@@ -8,16 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     Components({
-      resolvers: [IduxResolver({ importStyle: 'less' })],
-      dts: true,
+      resolvers: [IduxResolver({ importStyle: 'css' })],
     }),
   ],
-  css: {
-    preprocessorOptions: {
-      less: {
-        javascriptEnabled: true,
-      },
-    },
-  },
-  envDir: './envs',
 })
