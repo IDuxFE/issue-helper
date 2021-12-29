@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue'
+import IntroEn from './intro-en.vue';
 const {
   formGroup,
   repositories,
@@ -23,7 +24,10 @@ const {
         do not accept usage questions. If you open an issue that does not conform to the
         requirements,
         <strong>it will be closed immediately.</strong>。
-        <a @click="showIntro">Why are we so strict about this?</a>
+        <a @click="showIntro = !showIntro">Why are we so strict about this?</a>
+        <IxModal v-model:visible="showIntro" header="the reason behind our strict policy issue">
+              <IntroEn></IntroEn>
+        </IxModal>
       </p>
       <p>For usage questions, please use the following resources:</p>
       <ul>
@@ -86,6 +90,7 @@ const {
               </ul>
             </IxFormItem>
           </IxCol>
+          <div class="bug"> 
           <template v-if="issueType == 'bug'">
             <IxCol span="24">
               <IxFormItem required message="Environment information is required">
@@ -93,7 +98,7 @@ const {
                   <span>
                     Environment
                     <IxTooltip title="Vue version, @idux version and browser version, etc">
-                      <IxIcon name="question-circle" />
+                       <IxIcon name="question-circle" class="question"/>
                     </IxTooltip>
                   </span>
                   <span>
@@ -123,7 +128,10 @@ const {
                     StackBlitz
                   </a>
                   .
-                  <a @click="showReprod">What is a minimal reproduction, and why is it required?</a>
+                  <a @click="showReprod = !showReprod">What is a minimal reproduction, and why is it required?</a>
+                    <IxModal v-model:visible="showReprod" header="About Reproductions">
+                          <ReproduceEn></ReproduceEn>
+                    </IxModal>
                 </p>
               </IxFormItem>
             </IxCol>
@@ -199,6 +207,7 @@ const {
               </IxFormItem>
             </IxCol>
           </template>
+          </div>
           <IxCol span="12" offset="11">
             <IxFormItem>
               <IxButton mode="primary" size="lg" @click="preview()">Preview and Submit</IxButton>

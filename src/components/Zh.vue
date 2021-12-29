@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { inject } from 'vue'
+import { inject} from 'vue'
+import ReproduceZh from './reproduce-zh.vue';
+
 const {
   formGroup,
   repositories,
@@ -12,6 +14,7 @@ const {
   showReprod,
   preview,
 } = inject('appContext')!
+
 </script>
 
 <template>
@@ -22,8 +25,11 @@ const {
         @idux 的 issue 列表只接受 bug 报告或是新功能请求 (feature requests)。这意味着
         <strong>我们不接受用法问题</strong>。如果你开的 issue不符合规定，它将会被
         <strong>立刻关闭</strong>。
-        <a @click="showIntro">为什么要这么严格？</a>
-      </p>
+        <a @click="showIntro = !showIntro">为什么要这么严格？</a>
+        <IxModal v-model:visible="showIntro" header="为什么要有这么严格的 issue 规定">
+              <IntroZh></IntroZh>
+        </IxModal>
+     </p>
       <p>对于使用中遇到的问题，请使用以下资源：</p>
       <ul>
         <li>
@@ -46,7 +52,7 @@ const {
         issue 在最新版本中仍然存在，请不要在旧 issue 下面留言，而应该用下面的表单开一个新的 issue。
       </p>
     </div>
-    <div>
+    <div class="bug">
       <IxForm :control="formGroup" layout="vertical">
         <IxRow>
           <IxCol span="11">
@@ -84,6 +90,7 @@ const {
               </ul>
             </IxFormItem>
           </IxCol>
+
           <template v-if="issueType == 'bug'">
             <IxCol span="24">
               <IxFormItem required message="请填写环境信息">
@@ -91,7 +98,7 @@ const {
                   <span>
                     环境信息
                     <IxTooltip title="Vue 版本/@idux版本/浏览器版本/等信息">
-                      <IxIcon name="question-circle" />
+                      <IxIcon name="question-circle" class="question"/>
                     </IxTooltip>
                   </span>
                   <span>
@@ -119,7 +126,10 @@ const {
                     StackBlitz
                   </a>
                   的链接。
-                  <a @click="showReprod">什么是最小化重现，为什么这是必需的？</a>
+                  <a @click="showReprod = !showReprod">什么是最小化重现，为什么这是必需的？</a>
+                    <IxModal v-model:visible="showReprod" header="关于重现">
+                          <ReproduceZh></ReproduceZh>
+                    </IxModal>
                 </p>
               </IxFormItem>
             </IxCol>
@@ -135,6 +145,7 @@ const {
                 </p>
               </IxFormItem>
             </IxCol>
+
             <IxCol span="24">
               <IxFormItem label="期望的结果是什么？" required message="请填写期望的结果">
                 <IxTextarea control="expectResult" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
@@ -179,8 +190,9 @@ const {
                   格式化你的代码片段。
                 </p>
               </IxFormItem>
-            </IxCol>
+            </IxCol> 
           </template>
+        
           <IxCol span="12" offset="11">
             <IxFormItem>
               <IxButton mode="primary" size="lg" @click="preview()">预览和提交</IxButton>
