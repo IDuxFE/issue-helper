@@ -76,8 +76,8 @@ const preview = () => {
   }
 }
 
-const showIntro = () => {}
-const showReprod = () => {}
+const showIntro = ref(false)
+const showReprod = ref(false)
 
 provide('appContext', {
   formGroup,

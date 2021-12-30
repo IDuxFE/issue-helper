@@ -4,6 +4,10 @@ body {
   font-family: Avenir, sans-serif;
 }
 
+a {
+  text-decoration: none;
+}
+
 .logo {
   height: 64px;
   line-height: 64px;
@@ -30,14 +34,12 @@ body {
   justify-content: space-between;
 }
 
-.ix-layout-content {
-  width: 1024px;
-  margin: 20px auto;
-  padding: 24px;
-  border-radius: 4px;
+.ix-layout {
+  background: #f0f2f5;
 }
 
 .ix-layout-content {
+  background: #fff;
   width: 1024px;
   margin: 20px auto;
   padding: 24px;
@@ -46,6 +48,16 @@ body {
 
 .ix-layout-footer {
   text-align: center;
+  background: #f0f2f5 !important;
+}
+
+.ix-form-item-label-tooltip {
+  cursor: auto !important;
+}
+
+.question {
+  color: #00000076 !important;
+  margin-right: 5px;
 }
 
 .paragraph h5 {
@@ -67,6 +79,14 @@ body {
 .paragraph table thead th,
 .paragraph table thead td {
   background: #fafafa;
+}
+
+.bug p {
+  color: #00000073;
+}
+
+.ix-radio-default {
+  width: 243px;
 }
 
 th,
