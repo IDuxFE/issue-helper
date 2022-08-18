@@ -7,6 +7,8 @@ import '@idux/cdk/index.css'
 import '@idux/components/style/core/reset.default.css'
 import '@idux/components/style/core/reset-scroll.default.css'
 
+import '@idux/components/default.css'
+
 import { createGlobalConfig } from '@idux/components/config'
 import { IDUX_ICON_DEPENDENCIES, addIconDefinitions } from '@idux/components/icon'
 
