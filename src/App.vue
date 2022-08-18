@@ -8,7 +8,6 @@ import { useGithubContents } from './composables/useGithubContents'
 import { useLanguage } from './composables/useLanguage'
 import { useSearchIssues } from './composables/useSearchIssues'
 import { getBugTemplate, getFeatureTemplate } from './utils/template'
-import { camelCase, upperFirst } from 'lodash-es'
 const repositories = [{ value: 'idux', label: 'idux' }]
 
 const types = computed(() => {
@@ -94,29 +93,31 @@ provide('appContext', {
 </script>
 
 <template>
-  <IxModalProvider ref="modalProviderRef">
-    <IxLayout>
-      <IxLayoutHeader>
-        <div class="header-content">
-          <div class="logo">
-            <img src="/logo.svg" />
-            <h1>Issue Helper</h1>
+  <IxMessageProvider>
+    <IxModalProvider ref="modalProviderRef">
+      <IxLayout>
+        <IxLayoutHeader>
+          <div class="header-content">
+            <div class="logo">
+              <img src="/logo.svg" />
+              <h1>Issue Helper</h1>
+            </div>
+            <div class="lang-button">
+              <IxButton size="sm" @click="changeLanguage()">
+                {{ language === 'zh' ? 'English' : '中文' }}
+              </IxButton>
+            </div>
           </div>
-          <div>
-            <IxButton size="sm" @click="changeLanguage()">
-              {{ language === 'zh' ? 'English' : '中文' }}
-            </IxButton>
-          </div>
-        </div>
-      </IxLayoutHeader>
-      <IxLayoutContent>
-        <Zh v-if="language === 'zh'" />
-        <En v-else />
-      </IxLayoutContent>
-      <IxLayoutFooter>
-        Inspired by <a href="https://new-issue.vuejs.org/" target="_blank">Vue Issue Helper</a>·
-        <a href="https://github.com/IDuxFE/issue-helper">Source Code</a>
-      </IxLayoutFooter>
-    </IxLayout>
-  </IxModalProvider>
+        </IxLayoutHeader>
+        <IxLayoutContent>
+          <Zh v-if="language === 'zh'" />
+          <En v-else />
+        </IxLayoutContent>
+        <IxLayoutFooter>
+          Inspired by <a href="https://new-issue.vuejs.org/" target="_blank">Vue Issue Helper</a>·
+          <a href="https://github.com/IDuxFE/issue-helper">Source Code</a>
+        </IxLayoutFooter>
+      </IxLayout>
+    </IxModalProvider>
+  </IxMessageProvider>
 </template>

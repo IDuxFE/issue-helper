@@ -13,8 +13,8 @@
     "eslint-fix": "eslint --fix ./src  --ext .vue,.ts"
   },
   "dependencies": {
-    "@idux/cdk": "^1.0.0-alpha.0",
-    "@idux/components": "^1.0.0-alpha.0",
+    "@idux/cdk": "^1.0.0-rc.3",
+    "@idux/components": "^1.0.0-rc.3",
     "lodash-es": "^4.17.21",
     "marked": "^4.0.8",
     "vue": "^3.2.26"

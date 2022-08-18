@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { inject} from 'vue'
-import ReproduceZh from './reproduce-zh.vue';
+import { inject } from 'vue'
+import { useClipboard } from '@idux/cdk/clipboard'
+import { useMessage } from '@idux/components/message'
+import ReproduceZh from './reproduce-zh.vue'
 
 const {
   formGroup,
@@ -15,6 +17,14 @@ const {
   preview,
 } = inject('appContext')!
 
+const { copy } = useClipboard()
+const { success } = useMessage()
+
+const onCopy = () => {
+  copy(`npx envinfo --npmPackages '{vue,@idux/*}' --browsers`).then(() => {
+    success('复制命令成功，请在项目根目录执行命令。')
+  })
+}
 </script>
 
 <template>
@@ -27,9 +37,9 @@ const {
         <strong>立刻关闭</strong>。
         <a @click="showIntro = !showIntro">为什么要这么严格？</a>
         <IxModal v-model:visible="showIntro" header="为什么要有这么严格的 issue 规定">
-              <IntroZh></IntroZh>
+          <IntroZh></IntroZh>
         </IxModal>
-     </p>
+      </p>
       <p>对于使用中遇到的问题，请使用以下资源：</p>
       <ul>
         <li>
@@ -57,27 +67,28 @@ const {
         <IxRow>
           <IxCol span="11">
             <IxFormItem label="相关仓库" labelTooltip="请确保将 issue 发往相关的仓库">
-              <IxSelect control="repository" :options="repositories"></IxSelect>
+              <IxSelect control="repository" :dataSource="repositories"></IxSelect>
             </IxFormItem>
           </IxCol>
           <IxCol span="12" offset="1">
             <IxFormItem label="这是一个">
-              <IxRadioGroup control="type" buttoned :options="types"></IxRadioGroup>
+              <IxRadioGroup control="type" buttoned :dataSource="types"></IxRadioGroup>
             </IxFormItem>
           </IxCol>
           <IxCol span="24">
             <IxFormItem control="title.content" label="Issue 标题" required message="请填写标题">
-              <IxRow>
-                <IxCol span="3">
-                  <IxSelect control="title.package" :options="packages"></IxSelect>
-                </IxCol>
-                <IxCol span="5">
-                  <IxSelect control="title.name" :options="packageDirnames" searchable></IxSelect>
-                </IxCol>
-                <IxCol span="16">
-                  <IxInput control="title.content" />
-                </IxCol>
-              </IxRow>
+              <IxSelect
+                style="width: 200px"
+                control="title.package"
+                :dataSource="packages"
+              ></IxSelect>
+              <IxSelect
+                style="width: 200px"
+                control="title.name"
+                :dataSource="packageDirnames"
+                searchable
+              ></IxSelect>
+              <IxInput control="title.content" />
             </IxFormItem>
           </IxCol>
           <IxCol span="24" v-if="searchIssues.length > 0">
@@ -98,54 +109,64 @@ const {
                   <span>
                     环境信息
                     <IxTooltip title="Vue 版本/@idux版本/浏览器版本/等信息">
-                      <IxIcon name="question-circle" class="question"/>
+                      <IxIcon name="question-circle" class="question" />
                     </IxTooltip>
                   </span>
-                  <span>
-                    输入命令：
-                    <code> npx envinfo --npmPackages '{vue,@idux/*}' --browsers </code>
-                  </span>
+                  <IxButton @click="onCopy"> 复制命令 </IxButton>
                 </template>
-                <IxTextarea control="environment" rows="4" :autosize="{ minRows: 4 }"></IxTextarea>
+                <IxTextarea
+                  placeholder="通过命令获取: npx envinfo --npmPackages '{vue,@idux/*}' --browsers"
+                  control="environment"
+                  rows="4"
+                  gi
+                  :autosize="{ minRows: 4 }"
+                ></IxTextarea>
               </IxFormItem>
             </IxCol>
             <IxCol span="24">
               <IxFormItem
                 label="重现链接"
                 required
-                message="请填写 CodeSandbox, StackBlitz 或者 GitHub 链接"
+                message="请填写 Playground, CodeSandbox, StackBlitz, iDux 文档或者 GitHub 链接"
               >
                 <IxInput control="link" />
-                <p>
-                  请提供一个尽可能精简的链接
-                  <a href="https://codesandbox.io/s/idux-starter-7o9lv" target="_blank">
-                    CodeSandbox
-                  </a>
-                  或者
-                  <a href="https://stackblitz.com/edit/idux-starter" target="_blank">
-                    StackBlitz
-                  </a>
-                  的链接。
-                  <a @click="showReprod = !showReprod">什么是最小化重现，为什么这是必需的？</a>
+                <template #description>
+                  <p>
+                    请提供一个尽可能精简的链接
+                    <a href="https://playground.idux.site/" target="_blank"> Playground, </a>
+                    <a href="https://codesandbox.io/s/idux-starter-7o9lv" target="_blank">
+                      CodeSandbox
+                    </a>
+                    或者
+                    <a href="https://stackblitz.com/edit/idux-starter" target="_blank">
+                      StackBlitz
+                    </a>
+                    的链接。
+                    <a @click="showReprod = !showReprod">什么是最小化重现，为什么这是必需的？</a>
                     <IxModal v-model:visible="showReprod" header="关于重现">
-                          <ReproduceZh></ReproduceZh>
+                      <ReproduceZh></ReproduceZh>
                     </IxModal>
-                </p>
+                  </p>
+                </template>
               </IxFormItem>
             </IxCol>
             <IxCol span="24">
               <IxFormItem label="重现步骤" required message="请填写重现步骤">
                 <IxTextarea control="step" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-                <p>
-                  简洁清晰的重现步骤能够帮助我们更迅速地定位问题所在。支持使用
-                  <a href="https://guides.github.com/features/mastering-markdown/" target="_blank">
-                    Markdown
-                  </a>
-                  来格式化列表或是代码片段。
-                </p>
+                <template #description>
+                  <p>
+                    简洁清晰的重现步骤能够帮助我们更迅速地定位问题所在。支持使用
+                    <a
+                      href="https://guides.github.com/features/mastering-markdown/"
+                      target="_blank"
+                    >
+                      Markdown
+                    </a>
+                    来格式化列表或是代码片段。
+                  </p>
+                </template>
               </IxFormItem>
             </IxCol>
-
             <IxCol span="24">
               <IxFormItem label="期望的结果是什么？" required message="请填写期望的结果">
                 <IxTextarea control="expectResult" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
@@ -169,30 +190,37 @@ const {
             <IxCol span="24">
               <IxFormItem label="这个功能解决了什么问题？" required message="请填写此项">
                 <IxTextarea rows="2" control="motivation" :autosize="{ minRows: 2 }"></IxTextarea>
-                <p class="explain-paragraph">
-                  请尽可能详尽地说明这个需求的用例和场景。最重要的是：解释清楚是怎样的
-                  <strong>用户体验需求</strong>催生了这个功能上的需求。
-                </p>
-                <p>
-                  @idux 的一个重要设计原则是保持 API 的简洁和直接。通常来说，我们只考虑添加在现有的
-                  API 下无法轻松实现的功能。新功能的用例应当足够常见。
-                </p>
+                <template #description>
+                  <p>
+                    请尽可能详尽地说明这个需求的用例和场景。最重要的是：解释清楚是怎样的
+                    <strong>用户体验需求</strong> 催生了这个功能上的需求。
+                    <br />
+                    @idux 的一个重要设计原则是保持 API
+                    的简洁和直接。通常来说，我们只考虑添加在现有的 API
+                    下无法轻松实现的功能。新功能的用例应当足够常见。
+                  </p>
+                </template>
               </IxFormItem>
             </IxCol>
             <IxCol span="24">
               <IxFormItem label="你期望的 API 是怎样的？" required message="请填写此项">
                 <IxTextarea control="proposal" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-                <p>
-                  描述一下你期望这个新功能的 API 是如何使用的，并提供一些代码示例。请用
-                  <a href="https://guides.github.com/features/mastering-markdown/" target="_blank">
-                    Markdown
-                  </a>
-                  格式化你的代码片段。
-                </p>
+                <template #description>
+                  <p>
+                    描述一下你期望这个新功能的 API 是如何使用的，并提供一些代码示例。请用
+                    <a
+                      href="https://guides.github.com/features/mastering-markdown/"
+                      target="_blank"
+                    >
+                      Markdown
+                    </a>
+                    格式化你的代码片段。
+                  </p>
+                </template>
               </IxFormItem>
-            </IxCol> 
+            </IxCol>
           </template>
-        
+
           <IxCol span="12" offset="11">
             <IxFormItem>
               <IxButton mode="primary" size="lg" @click="preview()">预览和提交</IxButton>

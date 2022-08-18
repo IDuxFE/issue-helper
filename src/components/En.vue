@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { inject } from 'vue'
-import IntroEn from './intro-en.vue';
+import { useClipboard } from '@idux/cdk/clipboard'
+import { useMessage } from '@idux/components/message'
+
+import IntroEn from './intro-en.vue'
 const {
   formGroup,
   repositories,
@@ -13,6 +16,15 @@ const {
   showReprod,
   preview,
 } = inject('appContext')!
+
+const { copy } = useClipboard()
+const { success } = useMessage()
+
+const onCopy = () => {
+  copy(`npx envinfo --npmPackages '{vue,@idux/*}' --browsers`).then(() => {
+    success('The command replication succeeded. Run the command in the project root directory.')
+  })
+}
 </script>
 
 <template>
@@ -26,7 +38,7 @@ const {
         <strong>it will be closed immediately.</strong>。
         <a @click="showIntro = !showIntro">Why are we so strict about this?</a>
         <IxModal v-model:visible="showIntro" header="the reason behind our strict policy issue">
-              <IntroEn></IntroEn>
+          <IntroEn></IntroEn>
         </IxModal>
       </p>
       <p>For usage questions, please use the following resources:</p>
@@ -57,27 +69,28 @@ const {
               label="I am opening an issue for"
               labelTooltip="Please make sure to file the issue at appropriate repo"
             >
-              <IxSelect control="repository" :options="repositories"></IxSelect>
+              <IxSelect control="repository" :dataSource="repositories"></IxSelect>
             </IxFormItem>
           </IxCol>
           <IxCol span="12" offset="1">
             <IxFormItem label="This is a">
-              <IxRadioGroup control="type" buttoned :options="types"></IxRadioGroup>
+              <IxRadioGroup control="type" buttoned :dataSource="types"></IxRadioGroup>
             </IxFormItem>
           </IxCol>
           <IxCol span="24">
             <IxFormItem control="title.content" label="Title" required message="Title is required">
-              <IxRow>
-                <IxCol span="3">
-                  <IxSelect control="title.package" :options="packages"></IxSelect>
-                </IxCol>
-                <IxCol span="5">
-                  <IxSelect control="title.name" :options="packageDirnames" searchable></IxSelect>
-                </IxCol>
-                <IxCol span="16">
-                  <IxInput control="title.content" />
-                </IxCol>
-              </IxRow>
+              <IxSelect
+                style="width: 200px"
+                control="title.package"
+                :dataSource="packages"
+              ></IxSelect>
+              <IxSelect
+                style="width: 200px"
+                control="title.name"
+                :dataSource="packageDirnames"
+                searchable
+              ></IxSelect>
+              <IxInput control="title.content" />
             </IxFormItem>
           </IxCol>
           <IxCol span="24" v-if="searchIssues.length > 0">
@@ -90,123 +103,150 @@ const {
               </ul>
             </IxFormItem>
           </IxCol>
-          <div class="bug"> 
-          <template v-if="issueType == 'bug'">
-            <IxCol span="24">
-              <IxFormItem required message="Environment information is required">
-                <template #label>
-                  <span>
-                    Environment
-                    <IxTooltip title="Vue version, @idux version and browser version, etc">
-                       <IxIcon name="question-circle" class="question"/>
-                    </IxTooltip>
-                  </span>
-                  <span>
-                    Output of:
-                    <code>
-                      npx envinfo --system --npmPackages '{vue,@idux/*}' --binaries --browsers
-                    </code>
-                  </span>
-                </template>
-                <IxTextarea control="environment" rows="4" :autosize="{ minRows: 4 }"></IxTextarea>
-              </IxFormItem>
-            </IxCol>
-            <IxCol span="24">
-              <IxFormItem
-                label="Link to minimal reproduction"
-                required
-                message="A CodeSandbox, StackBlitz or github link is required"
-              >
-                <IxInput control="link" />
-                <p>
-                  Please provide a link by forking the link
-                  <a href="https://codesandbox.io/s/idux-starter-7o9lv" target="_blank">
-                    CodeSandbox
-                  </a>
-                  or
-                  <a href="https://stackblitz.com/edit/idux-starter" target="_blank">
-                    StackBlitz
-                  </a>
-                  .
-                  <a @click="showReprod = !showReprod">What is a minimal reproduction, and why is it required?</a>
-                    <IxModal v-model:visible="showReprod" header="About Reproductions">
-                          <ReproduceEn></ReproduceEn>
-                    </IxModal>
-                </p>
-              </IxFormItem>
-            </IxCol>
-            <IxCol span="24">
-              <IxFormItem label="Step to reproduce" required message="Reproduce step is required">
-                <IxTextarea control="step" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-                <p>
-                  Clear and concise reproduction instructions are important for us to be able to
-                  triage your issue in a timely manner. Note that you can use
-                  <a href="https://guides.github.com/features/mastering-markdown/" target="_blank">
-                    Markdown
-                  </a>
-                  to format lists and code.
-                </p>
-              </IxFormItem>
-            </IxCol>
-            <IxCol span="24">
-              <IxFormItem label="What is expected?" required message="Expected is required">
-                <IxTextarea control="expectResult" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-              </IxFormItem>
-            </IxCol>
-            <IxCol span="24">
-              <IxFormItem label="What is actually happening?" required message="Actual is required">
-                <IxTextarea control="existResult" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-              </IxFormItem>
-            </IxCol>
-            <IxCol span="24">
-              <IxFormItem
-                label="Any additional comments? (optional)"
-                labelTooltip="e.g. some background/context of how you ran into this bug"
-              >
-                <IxTextarea control="additional" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-              </IxFormItem>
-            </IxCol>
-          </template>
-          <template v-if="issueType == 'feature'">
-            <IxCol span="24">
-              <IxFormItem
-                label="What problem does this feature solve?"
-                required
-                message="This is required"
-              >
-                <IxTextarea rows="2" control="motivation" :autosize="{ minRows: 2 }"></IxTextarea>
-                <p class="explain-paragraph">
-                  Explain your use case, context, and rationale behind this feature request. More
-                  importantly, what is the <strong>end user experience</strong> you are trying to
-                  build that led to the need for this feature?
-                </p>
-                <p>
-                  An important design goal of @idux is keeping the API surface small and
-                  straightforward. In general, we only consider adding new features that solve a
-                  problem that cannot be easily dealt with using existing APIs (i.e. not just an
-                  alternative way of doing things that can already be done). The problem should also
-                  be common enough to justify the addition.
-                </p>
-              </IxFormItem>
-            </IxCol>
-            <IxCol span="24">
-              <IxFormItem
-                label="What does the proposed API look like?"
-                required
-                message="This is required"
-              >
-                <IxTextarea control="proposal" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
-                <p>
-                  Describe how you propose to solve the problem and provide code samples of how the
-                  API would work once implemented. Note that you can use
-                  <a href="https://guides.github.com/features/mastering-markdown/" target="_blank"
-                    >Markdown
-                  </a>
-                  to format your code blocks.
-                </p>
-              </IxFormItem>
-            </IxCol>
-          </template>
+          <div class="bug">
+            <template v-if="issueType == 'bug'">
+              <IxCol span="24">
+                <IxFormItem required message="Environment information is required">
+                  <template #label>
+                    <span>
+                      Environment
+                      <IxTooltip title="Vue version, @idux version and browser version, etc">
+                        <IxIcon name="question-circle" class="question" />
+                      </IxTooltip>
+                    </span>
+                    <IxButton @click="onCopy"> Copy Command </IxButton>
+                  </template>
+                  <IxTextarea
+                    placeholder="Through commands: npx envinfo --npmPackages '{vue,@idux/*}' --browsers"
+                    control="environment"
+                    rows="4"
+                    :autosize="{ minRows: 4 }"
+                  ></IxTextarea>
+                </IxFormItem>
+              </IxCol>
+              <IxCol span="24">
+                <IxFormItem
+                  label="Link to minimal reproduction"
+                  required
+                  message="A Playground, CodeSandbox, StackBlitz, idux.site or github link is required"
+                >
+                  <IxInput control="link" />
+                  <template #description>
+                    <p>
+                      Please provide a link by forking the link
+                      <a href="https://playground.idux.site/" target="_blank"> Playground, </a>
+                      <a href="https://codesandbox.io/s/idux-starter-7o9lv" target="_blank">
+                        CodeSandbox
+                      </a>
+                      or
+                      <a href="https://stackblitz.com/edit/idux-starter" target="_blank">
+                        StackBlitz
+                      </a>
+                      .
+                      <a @click="showReprod = !showReprod">
+                        What is a minimal reproduction, and why is it required?
+                      </a>
+                      <IxModal v-model:visible="showReprod" header="About Reproductions">
+                        <ReproduceEn></ReproduceEn>
+                      </IxModal>
+                    </p>
+                  </template>
+                </IxFormItem>
+              </IxCol>
+              <IxCol span="24">
+                <IxFormItem label="Step to reproduce" required message="Reproduce step is required">
+                  <IxTextarea control="step" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
+                  <template #description>
+                    <p>
+                      Clear and concise reproduction instructions are important for us to be able to
+                      triage your issue in a timely manner. Note that you can use
+                      <a
+                        href="https://guides.github.com/features/mastering-markdown/"
+                        target="_blank"
+                      >
+                        Markdown
+                      </a>
+                      to format lists and code.
+                    </p>
+                  </template>
+                </IxFormItem>
+              </IxCol>
+              <IxCol span="24">
+                <IxFormItem label="What is expected?" required message="Expected is required">
+                  <IxTextarea
+                    control="expectResult"
+                    rows="2"
+                    :autosize="{ minRows: 2 }"
+                  ></IxTextarea>
+                </IxFormItem>
+              </IxCol>
+              <IxCol span="24">
+                <IxFormItem
+                  label="What is actually happening?"
+                  required
+                  message="Actual is required"
+                >
+                  <IxTextarea
+                    control="existResult"
+                    rows="2"
+                    :autosize="{ minRows: 2 }"
+                  ></IxTextarea>
+                </IxFormItem>
+              </IxCol>
+              <IxCol span="24">
+                <IxFormItem
+                  label="Any additional comments? (optional)"
+                  labelTooltip="e.g. some background/context of how you ran into this bug"
+                >
+                  <IxTextarea control="additional" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
+                </IxFormItem>
+              </IxCol>
+            </template>
+            <template v-if="issueType == 'feature'">
+              <IxCol span="24">
+                <IxFormItem
+                  label="What problem does this feature solve?"
+                  required
+                  message="This is required"
+                >
+                  <IxTextarea rows="2" control="motivation" :autosize="{ minRows: 2 }"></IxTextarea>
+                  <template #description>
+                    <p>
+                      Explain your use case, context, and rationale behind this feature request.
+                      More importantly, what is the <strong>end user experience</strong> you are
+                      trying to build that led to the need for this feature?
+                      <br />
+                      An important design goal of @idux is keeping the API surface small and
+                      straightforward. In general, we only consider adding new features that solve a
+                      problem that cannot be easily dealt with using existing APIs (i.e. not just an
+                      alternative way of doing things that can already be done). The problem should
+                      also be common enough to justify the addition.
+                    </p>
+                  </template>
+                </IxFormItem>
+              </IxCol>
+              <IxCol span="24">
+                <IxFormItem
+                  label="What does the proposed API look like?"
+                  required
+                  message="This is required"
+                >
+                  <IxTextarea control="proposal" rows="2" :autosize="{ minRows: 2 }"></IxTextarea>
+                  <template #description>
+                    <p>
+                      Describe how you propose to solve the problem and provide code samples of how
+                      the API would work once implemented. Note that you can use
+                      <a
+                        href="https://guides.github.com/features/mastering-markdown/"
+                        target="_blank"
+                        >Markdown
+                      </a>
+                      to format your code blocks.
+                    </p>
+                  </template>
+                </IxFormItem>
+              </IxCol>
+            </template>
           </div>
           <IxCol span="12" offset="11">
             <IxFormItem>
