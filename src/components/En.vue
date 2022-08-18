@@ -80,17 +80,17 @@ const onCopy = () => {
           <IxCol span="24">
             <IxFormItem control="title.content" label="Title" required message="Title is required">
               <IxSelect
-                style="width: 200px"
+                style="width: 150px"
                 control="title.package"
                 :dataSource="packages"
               ></IxSelect>
               <IxSelect
-                style="width: 200px"
+                style="width: 150px"
                 control="title.name"
                 :dataSource="packageDirnames"
                 searchable
               ></IxSelect>
-              <IxInput control="title.content" />
+              <IxInput style="width: calc(100% - 300px)" control="title.content" />
             </IxFormItem>
           </IxCol>
           <IxCol span="24" v-if="searchIssues.length > 0">
@@ -120,7 +120,6 @@ const onCopy = () => {
                     placeholder="Through commands: npx envinfo --npmPackages '{vue,@idux/*}' --browsers"
                     control="environment"
                     rows="4"
-                    :autosize="{ minRows: 4 }"
                   ></IxTextarea>
                 </IxFormItem>
               </IxCol>
