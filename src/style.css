@@ -8,9 +8,13 @@ a {
   text-decoration: none;
 }
 
-.logo {
+.logo,
+.lang-button {
   height: 64px;
   line-height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo h1 {

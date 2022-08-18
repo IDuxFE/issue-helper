@@ -3,7 +3,7 @@ import { useFormGroup, ValidatorFn, Validators } from '@idux/cdk/forms'
 // 匹配预定复现网址
 // tslint:disable-next-line:max-line-length
 export const REP_LINK_REGEXP =
-  /(https?|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]*(stackblitz|github|codesandbox)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+/
+  /(https?|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]*(stackblitz|github|codesandbox|idux|playground)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+/
 // 现有网址不可完全复制
 export const PREVENT_COPY_LINK =
   /^(https?:\/\/)?((stackblitz\.com\/edit\/idux-starter)|(idux-starter\.stackblitz\.io)|(codesandbox.io\/s\/idux-starter-7o9lv))\/?$/i
@@ -28,16 +28,16 @@ export function useForm() {
     }),
 
     // bug
-    link: [''],
-    environment: [''],
-    step: [''],
-    expectResult: [''],
-    existResult: [''],
+    link: ['', [required, repoLinkValidator]],
+    environment: ['', [required]],
+    step: ['', [required]],
+    expectResult: ['', [required]],
+    existResult: ['', [required]],
     additional: [''],
 
     // feature
-    motivation: [''],
-    proposal: [''],
+    motivation: ['', [required]],
+    proposal: ['', [required]],
   })
 
   const bugControls = ['link', 'environment', 'step', 'expectResult', 'existResult'] as const
@@ -47,27 +47,17 @@ export function useForm() {
     type => {
       if (type === 'bug') {
         bugControls.forEach(name => {
-          if (name !== 'link') {
-            formGroup.get(name).setValidator(required)
-          } else {
-            formGroup.get(name).setValidator([required, repoLinkValidator])
-          }
-          formGroup.get(name).validate()
+          formGroup.get(name).enable()
         })
         featureControls.forEach(name => {
-          formGroup.get(name).setValidator([])
-          formGroup.get(name).setValue('')
-          formGroup.get(name).validate()
+          formGroup.get(name).disable()
         })
       } else {
         bugControls.forEach(name => {
-          formGroup.get(name).setValidator([])
-          formGroup.get(name).setValue('')
-          formGroup.get(name).validate()
+          formGroup.get(name).disable()
         })
         featureControls.forEach(name => {
-          formGroup.get(name).setValidator(required)
-          formGroup.get(name).validate()
+          formGroup.get(name).enable()
         })
       }
     },
