@@ -1,8 +1,12 @@
+export const playground_link_reg =
+  /(https?):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]*(playground)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+/
+
 export function getBugTemplate(formValue: any) {
   const { link, step, expectResult, existResult, environment, additional } = formValue
+
   return `
 ### Reproduction link
-[${link}](${link})
+[${playground_link_reg.test(link) ? 'playground' : link}](${link})
 
 ### Steps to reproduce
 ${step}
